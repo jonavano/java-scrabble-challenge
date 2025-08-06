@@ -1,54 +1,85 @@
 package com.booleanuk;
 
+import java.util.stream.Collectors;
+
 public class Scrabble {
     String word;
     public Scrabble(String word) {
+        int wordLength = word.chars().filter(x -> Character.isAlphabetic((char) x))
+                .mapToObj(x -> String.valueOf((char) x))
+                .collect(Collectors.joining()).length();
+//        System.out.println(test1);
+
         StringBuilder sb = new StringBuilder();
         boolean doubleThing = false;
         boolean triple  = false;
         char lastBracket = '.';
+        int charsSinceCurly = 0;
+        int charsSinceSquar = 0;
         for (char c: word.toCharArray()) {
             String test = sb.toString();
             if (c == '{' && !doubleThing) {
                 doubleThing = true;
                 lastBracket = '{';
+                charsSinceCurly = 0;
             } else if (c == '{' && doubleThing ) {
                 break;
             } else if (c == '}' && doubleThing && lastBracket != '[') {
-                doubleThing = false;
-                lastBracket = '.';
+                if (charsSinceCurly == 1 || charsSinceCurly == wordLength) {
+                    doubleThing = false;
+                    lastBracket = '.';
+                } else {
+                    break;
+                }
+
             } else if (c == '}'&& !doubleThing) {
                 doubleThing = true;
                 break;
             } else if (c == '[' && !triple) {
                 triple = true;
                 lastBracket = '[';
+                charsSinceSquar = 0;
             } else if (c == '[' && triple ) {
                 break;
             } else if (c == ']' && triple && lastBracket != '{') {
-                triple = false;
-                lastBracket = '.';
+                if (charsSinceSquar == 1 || charsSinceSquar == wordLength) {
+                    triple = false;
+                    lastBracket = '.';
+                } else {
+                    break;
+                }
+
             } else if (c == ']'&& !triple) {
                 triple = true;
                 break;
-            } else if (doubleThing && triple) {
-                sb.append(c);
-                sb.append(c);
-                sb.append(c);
-                sb.append(c);
-                sb.append(c);
-                sb.append(c);
-            } else if (doubleThing) {
-                sb.append(c);
-                sb.append(c);
-            } else if (triple) {
-                sb.append(c);
-                sb.append(c);
-                sb.append(c);
+            } else {
+                if (doubleThing && triple) {
+                    sb.append(c);
+                    sb.append(c);
+                    sb.append(c);
+                    sb.append(c);
+                    sb.append(c);
+                    sb.append(c);
+                } else if (doubleThing) {
+                    sb.append(c);
+                    sb.append(c);
+                } else if (triple) {
+                    sb.append(c);
+                    sb.append(c);
+                    sb.append(c);
+                }
+                else {
+                    sb.append(c);
+                }
+                if (doubleThing) {
+                    charsSinceCurly ++;
+                }
+                if (triple) {
+                    charsSinceSquar++;
+                }
             }
-            else {
-                sb.append(c);
-            }
+
+
         }
         if (!doubleThing && !triple) {
             this.word = sb.toString().toLowerCase();
@@ -86,5 +117,7 @@ public class Scrabble {
 
         return score;
     }
+
+
 
 }
